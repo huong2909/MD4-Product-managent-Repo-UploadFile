@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/layout :: head"></head>
+<body>
+<h3>Edit product</h3>
+<p>
+    <a href="/product">Product list</a>
+</p>
+<th:block th:if="${message}">
+    <p th:text="${message}"></p>
+</th:block>
+<form th:object="${product}" method="post"
+      novalidate="novalidate" enctype="multipart/form-data">
+    <input th:type="hidden" name="id" th:field="*{id}">
+    <table>
+        <tr>
+            <td>First name:</td>
+            <td><input type="text" th:field="*{name}"/></td>
+        </tr>
+        <tr>
+            <td>Last name:</td>
+            <td><input type="text" th:field="*{price}"/></td>
+        </tr>
+        <tr>
+            <td> Image:</td>
+            <td><input type="file" th:field="*{image}"/></td>
+        </tr>
+        <tr>
+            <td>Category:</td>
+            <td>
+                <select name="category">
+                    <option th:each="c : ${categories}"
+                            th:value="${c.id}"
+                            th:text="${c.name}"
+                            th:selected="(${product.category}) and (${c.id} == *{category.id})"></option>
+                </select>
+            </td>
+        </tr>
+<!--        <tr>-->
+<!--            <td>Category:</td>-->
+<!--            <td>-->
+<!--                <select name="category">-->
+<!--                    <option th:each="c : ${categories}"-->
+<!--                            th:value="${c.id}"-->
+<!--                            th:text="${c.name}"-->
+<!--                            th:selected="(${blog.category}) and (${c.id} == *{category.id})"></option>-->
+<!--                </select>-->
+<!--            </td>-->
+<!--        </tr>-->
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Update product"></td>
+        </tr>
+    </table>
+</form>
+<footer th:replace="/layout :: footer"></footer>
+</body>
+</html>

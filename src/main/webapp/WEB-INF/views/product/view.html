@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/layout :: head"></head>
+<body>
+<h1>View product</h1>
+<p>
+    <a href="/product">Product list</a>
+</p>
+<form th:action="@{/view-product}" th:object="${product}" method="post">
+    <input th:type="hidden" name="id" th:field="*{id}">
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td><p th:text="${product.name}"/></td>
+        </tr>
+        <tr>
+            <td>Content:</td>
+            <td><p th:text="${product.content}"/></td>
+        </tr>
+
+        <tr>
+            <td>Category:</td>
+            <td><p th:text="${product.category.name}"/></td>
+        </tr>
+        <tr>
+            <td></td>
+        </tr>
+    </table>
+</form>
+<footer th:replace="/layout :: footer"></footer>
+</body>
+</html>
