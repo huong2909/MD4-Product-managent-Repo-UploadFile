@@ -13,10 +13,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
@@ -24,6 +29,7 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/product")
 public class ProductController {
+
     @Value("${file-upload}")
     private String fileUpload;
 
@@ -33,6 +39,9 @@ public class ProductController {
     @Autowired
     private ICategoryService categoryService;
 
+    @Autowired
+    private HttpSession httpSession;
+
     @ModelAttribute("categories")
     public Iterable<Category> categories() {
         return categoryService.findAll();
@@ -40,7 +49,11 @@ public class ProductController {
 
 
     @GetMapping("")
-    public ModelAndView showList(@RequestParam("search") Optional<String> search, @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC, size = 2) Pageable pageable) {
+    public ModelAndView showList(@CookieValue(value = "counter", defaultValue = "0") Long counter, HttpServletResponse response, @RequestParam("search") Optional<String> search, @PageableDefault(sort = {"name"}, direction = Sort.Direction.ASC, size = 2) Pageable pageable) {
+        counter++;
+        Cookie cookie = new Cookie("counter", counter.toString());
+        cookie.setMaxAge(30);
+        response.addCookie(cookie);
         Page<Product> products;
         if (search.isPresent()) {
             products = productService.findAllByNameContaining(search.get(), pageable);
@@ -49,13 +62,16 @@ public class ProductController {
         }
         ModelAndView modelAndView = new ModelAndView("/product/list");
         modelAndView.addObject("products", products);
+        modelAndView.addObject("cookie", cookie);
         return modelAndView;
     }
 
     @GetMapping("/create-product")
     public ModelAndView showFormCreate() {
+
         ModelAndView modelAndView = new ModelAndView("/product/create");
-        modelAndView.addObject("product", new Product());
+        modelAndView.addObject("productForm", new ProductForm());
+
         return modelAndView;
     }
 
@@ -69,7 +85,12 @@ public class ProductController {
 //    }
 
     @PostMapping("/create-product")
-    public ModelAndView saveProduct(@ModelAttribute ProductForm productForm) {
+    public ModelAndView saveProduct(@Validated @ModelAttribute("productForm") ProductForm productForm, BindingResult bindingResult) {
+        if (bindingResult.hasFieldErrors()) {
+            ModelAndView modelAndView = new ModelAndView("/product/create");
+            modelAndView.addObject("productForm",productForm);
+            return modelAndView;
+        }
         MultipartFile multipartFile = productForm.getImage();
         String fileName = multipartFile.getOriginalFilename();
         try {
@@ -81,6 +102,7 @@ public class ProductController {
         productService.save(product);
         ModelAndView modelAndView = new ModelAndView("/product/create");
         modelAndView.addObject("productForm", productForm);
+        httpSession.setAttribute("product", product);
         modelAndView.addObject("message", "Created new product successfully !");
         return modelAndView;
     }
@@ -105,10 +127,10 @@ public class ProductController {
         Product product = productService.findById(id).get();
         String fileName = multipartFile.getOriginalFilename();
         if (fileName.equals("")) {
-             fileName = product.getImage();
+            fileName = product.getImage();
             product = new Product(productForm.getId(), productForm.getName(), productForm.getPrice(), fileName, productForm.getCategory());
         } else {
-             fileName = multipartFile.getOriginalFilename();
+            fileName = multipartFile.getOriginalFilename();
             try {
                 FileCopyUtils.copy(productForm.getImage().getBytes(), new File(fileUpload + fileName));
             } catch (IOException ex) {
@@ -139,11 +161,10 @@ public class ProductController {
     }
 
     @PostMapping("/delete-product")
-    public ModelAndView deleteProduct(@ModelAttribute("product") Product product) {
+    public String deleteProduct(@ModelAttribute("product") Product product) {
         productService.remove(product.getId());
-        ModelAndView modelAndView = new ModelAndView("/product/list");
-        modelAndView.addObject("product", new Product());
-        return modelAndView;
+
+        return "redirect:/product";
     }
 
     @GetMapping("/sortByPrice")
@@ -154,5 +175,11 @@ public class ProductController {
         return modelAndView;
     }
 
-
+    @GetMapping("/viewSession")
+    public ModelAndView viewSession() {
+        ModelAndView modelAndView = new ModelAndView("/product/info");
+        Product product = (Product) httpSession.getAttribute("product");
+        modelAndView.addObject("product", product);
+        return modelAndView;
+    }
 }

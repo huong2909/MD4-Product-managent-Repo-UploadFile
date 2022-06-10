@@ -39,7 +39,7 @@ import java.util.Properties;
 @EnableWebMvc // đánh dấu dự án này hỗ trợ mô hình MVC
 @EnableTransactionManagement // đánh dấu dự án này hỗ trợ mô hình MVC
 @ComponentScan("com.codegym")
-@EnableJpaRepositories("com.codegym.repository")
+@EnableJpaRepositories("com.codegym.repository") //đánh dấu dự án hỗ trợ repo
 @EnableSpringDataWebSupport //phân trang
 @PropertySource("classpath:upload_file.properties")
 
@@ -135,7 +135,6 @@ public class AppConfig implements WebMvcConfigurer, ApplicationContextAware {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/image/**")
                 .addResourceLocations("file:" + fileUpload);
-
     }
 
     @Bean(name = "multipartResolver")

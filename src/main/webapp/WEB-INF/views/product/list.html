@@ -4,6 +4,7 @@
 <body>
 <a href="/product/create-product">Create new Product</a><br>
 <h3>Product</h3>
+<h3 th:text="${cookie.value}"></h3>
 <form>
     Search by name:
     <input name="search" type="text"/>
@@ -18,6 +19,7 @@
         <th>Name</th>
         <th>Price</th>
         <th>Image</th>
+        <th>Category</th>
         <th>Action</th>
         <th>Action</th>
     </tr>

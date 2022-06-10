@@ -1,15 +1,21 @@
 package com.codegym.model.product;
 
 import com.codegym.model.category.Category;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotEmpty(message = "Khong duoc de trong")
+    @Size(min = 2, max = 30, message = "Tu 2 ky tu den 30 ky tu")
     private String name;
     private int price;
     private String image;

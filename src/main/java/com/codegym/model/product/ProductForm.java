@@ -7,12 +7,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 public class ProductForm {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotEmpty(message = "Khong duoc de trong")
+    @Size(min = 2, max = 30, message = "Tu 2 ky tu den 30 ky tu")
     private String name;
     private int price;
     private MultipartFile image;

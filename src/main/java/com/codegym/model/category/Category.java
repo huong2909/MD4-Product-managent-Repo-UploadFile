@@ -1,6 +1,7 @@
 package com.codegym.model.category;
 
 import com.codegym.model.product.Product;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
 import java.util.List;
@@ -12,18 +13,9 @@ public class Category {
     private Long id;
     private String name;
 
-    @OneToMany(targetEntity = Product.class)
-    private List<Product>products;
 
     public Category() {
     }
-
-    public Category(Long id, String name, List<Product> products) {
-        this.id = id;
-        this.name = name;
-        this.products = products;
-    }
-
 
     public Category(Long id, String name) {
         this.id = id;
@@ -44,13 +36,5 @@ public class Category {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
     }
 }
